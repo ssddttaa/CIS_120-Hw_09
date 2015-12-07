@@ -173,85 +173,27 @@ public class Game implements Runnable {
 		MinesweeperPanel mp =
 				new MinesweeperPanel(new JLabel("Player 1"),
 						    this.mode);
-		if(this.mp != null){
-			msFrame.getContentPane().remove(this.mp);
-			if(this.mp.globalTimer!=null){
-				this.mp.globalTimer.shutdown();
-				this.mp.resetTimeSinceGameStarted();
-			}
-		}
-		this.mp = mp;
-		JPanel controlPanel = new JPanel(new GridLayout(2,1));
-		controlPanel.setSize(50,240);
-		
-		JButton resetButton = new JButton("Reset");
-		
-		JButton mainMenuButton = new JButton("Main Menu");
-		controlPanel.add(resetButton);
-		controlPanel.add(mainMenuButton);
-		
-		JPanel timerPanel = new JPanel();
-		JLabel initialTimeLabel = new JLabel("Time Since Game Started: 0");
-		mp.setElapsedTimeLabel(initialTimeLabel);
-		
-		timerPanel.add(mp.getElapsedTimeLabel(), BorderLayout.NORTH);
-		
-		msFrame.setLocation(300, 300);
-		msFrame.add(mp, BorderLayout.WEST);
-		msFrame.add(timerPanel, BorderLayout.NORTH);
-		msFrame.add(controlPanel, BorderLayout.EAST);
-		msFrame.setResizable(false);
-		msFrame.pack();
-		
-		msFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		msFrame.setVisible(true);
-		
-		
+		MinesweeperFrame mf = new MinesweeperFrame(mp);
+		JButton resetButton = mf.getResetButton();
+		JButton mainMenuButton = mf.getMainMenuButton();
 		
 		resetButton.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
+				mf.dispose();
 				displaySinglePlayer(msFrame);
 			}
 		});
-		Game temp = this;
 		mainMenuButton.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
-				msFrame.setVisible(false);
-				if(temp.mp!=null){
-					msFrame.getContentPane().remove(temp.mp);
-					if(temp.mp.globalTimer != null){
-						temp.mp.globalTimer.shutdown();
-						temp.mp.resetTimeSinceGameStarted();
-					}
-				}
-				MinesweeperPanel newMP =
-						new MinesweeperPanel(new JLabel("Player 1"),
-								   	mode);
-				msFrame.add(newMP, BorderLayout.WEST);
-				temp.mp = newMP;
-				
-				if(aiMP != null){
-					aiFrame.getContentPane().remove(temp.aiMP);
-					if(temp.aiMP.globalTimer!=null){
-						temp.aiMP.globalTimer.shutdown();
-						temp.aiMP.resetTimeSinceGameStarted();
-					}
-					MinesweeperPanel newAIMP =
-							new MinesweeperPanel(new JLabel("AI"),temp.mode);
-					aiFrame.add(newAIMP, BorderLayout.WEST);
-					aiMP = newAIMP;
-				}
-				
 				startFrame.setVisible(true);
-				
 			}
 			
 		});
-		
+		mf.setVisible(true);
 	}
 	
 	/*

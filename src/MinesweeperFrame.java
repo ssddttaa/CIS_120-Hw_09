@@ -15,7 +15,6 @@ public class MinesweeperFrame extends JFrame{
 	private JButton mainMenuButton;
 	public MinesweeperFrame(MinesweeperPanel mp){
 		this.mp = mp;
-		
 		JPanel controlPanel = new JPanel(new GridLayout(2,1));
 		controlPanel.setSize(50,240);
 		
