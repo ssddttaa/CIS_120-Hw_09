@@ -1,7 +1,7 @@
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.Point;
+import java.awt.event.MouseAdapter;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -13,9 +13,10 @@ public class MinesweeperFrame extends JFrame{
 	private MinesweeperPanel mp;
 	private JButton resetButton;
 	private JButton mainMenuButton;
-	public MinesweeperFrame(MinesweeperPanel mp){
+	public MinesweeperFrame(MinesweeperPanel mp, Point location, String label){
+		super(label);
 		this.mp = mp;
-		JPanel controlPanel = new JPanel(new GridLayout(2,1));
+		JPanel controlPanel = new JPanel(new GridLayout(3,1));
 		controlPanel.setSize(50,240);
 		
 		this.resetButton = new JButton("Reset");
@@ -26,11 +27,10 @@ public class MinesweeperFrame extends JFrame{
 		
 		JPanel timerPanel = new JPanel();
 		JLabel initialTimeLabel = new JLabel("Time Since Game Started: 0");
-		mp.setElapsedTimeLabel(initialTimeLabel);
+		this.mp.setElapsedTimeLabel(initialTimeLabel);
 		
 		timerPanel.add(mp.getElapsedTimeLabel(), BorderLayout.NORTH);
-		
-		setLocation(300, 300);
+		setLocation(location);
 		add(mp, BorderLayout.WEST);
 		add(timerPanel, BorderLayout.NORTH);
 		add(controlPanel, BorderLayout.EAST);

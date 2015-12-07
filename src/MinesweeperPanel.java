@@ -1,23 +1,27 @@
+import java.awt.AWTException;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Point;
+import java.awt.Robot;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Random;
-import java.util.TreeSet;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -33,8 +37,8 @@ public class MinesweeperPanel extends JPanel{
 	private MineButton[][] buttons;
 	private final int boardSize[];
 	private boolean debugMode = false;
-	boolean startedPlaying = false; 
-	boolean lostGame = false;
+	public Boolean startedPlaying = false; 
+	public Boolean lostGame = false;
 	
 	private JLabel elapsedTime;
 	public int timeSinceGameStarted = 0;
@@ -43,8 +47,12 @@ public class MinesweeperPanel extends JPanel{
 	
 	private LinkedList<Point> mineLocations;
 	
- 	public MinesweeperPanel(JLabel player, MinesweeperDifficulty diff){
+	private boolean isAIPanel;
+	
+ 	public MinesweeperPanel
+ 		(JLabel player, MinesweeperDifficulty diff, boolean isAIPanel){
 		super(new GridLayout(diff.getSize()[0],diff.getSize()[1]));
+		this.isAIPanel = isAIPanel;
 		this.boardSize = diff.getSize();
 		this.mineLocations = new LinkedList<Point>();
 		buttons = new MineButton[boardSize[0]][boardSize[1]];
@@ -53,14 +61,6 @@ public class MinesweeperPanel extends JPanel{
 		this.addMinesToBoard();
 		this.addNonMineSquaresToBoard();
 		
-		for(int i = 0 ; i < boardSize[0]; i ++){
-			for(int j = 0 ; j < boardSize[1]; j ++){
-				MineButton currentButton = buttons[i][j];
-				if(currentButton == null){
-//					System.out.println("no mine at:"+(new Point(i,j).toString()));
-				}
-			}
-		}
 		for(int i = 0 ; i < boardSize[0]; i ++){
 			for(int j = 0 ; j < boardSize[1]; j ++){
 				MineButton currentButton = buttons[i][j];
@@ -78,7 +78,21 @@ public class MinesweeperPanel extends JPanel{
 				this.add(currentButton);
 			}
 		}
-		
+		if(this.isAIPanel){
+			System.out.println("is AI panel");
+			ScheduledExecutorService newExecutor = 
+					Executors.newSingleThreadScheduledExecutor();
+			newExecutor.scheduleWithFixedDelay(new Runnable(){
+
+				@Override
+				public void run() {
+					// TODO Auto-generated method stub
+					
+					
+				}
+				
+			}, 0, 1, TimeUnit.SECONDS);
+		}
 	}
 	
  	public boolean isStartedPlaying() {
@@ -122,44 +136,86 @@ public class MinesweeperPanel extends JPanel{
 			}
 			Mine newMine = new Mine(new Point(randX,randY));
 			mineLocations.add(newMine.getLocation());
-//			System.out.println("added mine at location:"+newMine.getLocation().toString());
 			buttons[randX][randY] = newMine;
-			newMine.addActionListener(new ActionListener(){
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					// TODO Auto-generated method stub
-//					clickedMine(boardSize);
-//					newMine.onClicked();
-				}
-			});
-			
-			newMine.addMouseListener(new MouseAdapter(){
-				@Override
-				public void mousePressed(MouseEvent e){
-					if(startedPlaying&&!lostGame){
-						if(e.getButton() == MouseEvent.BUTTON3){
-							if(!newMine.isClicked()){
-								changeFlagged(newMine);
-							}
-						}else if(!newMine.isFlagged()){
-							newMine.onClicked();
-							newMine.setFlagged(true);
-							changeFlagged(newMine);
-							clickedMine();
+			if(!isAIPanel){
+				newMine.addMouseListener(new MouseAdapter(){
+					@Override
+					public void mousePressed(MouseEvent e){
+						switch(e.getButton()){
+							case(MouseEvent.BUTTON3):
+								actionOnMineClick(true,newMine);
+								break;
+							default:
+								actionOnMineClick(false,newMine);
+								break;
 						}
-					}else if(!startedPlaying&&!lostGame){
-						startGame();
-						mousePressed(e);
 					}
-				}
-				
-			});
+					
+				});
+			}
 			
 		}
 	}
 	
-	private void startGame(){
+	
+	public void actionOnMineClick(boolean isRightClick, MineButton mine){
+		if(startedPlaying&&!lostGame){
+			if(isRightClick){
+				if(!mine.isClicked()){
+					changeFlagged(mine);
+				}
+			}else if(!mine.isFlagged()){
+				mine.onClicked();
+				mine.setFlagged(true);
+				changeFlagged(mine);
+				clickedMine();
+			}
+		}else if(!startedPlaying&&!lostGame){
+			startGame();
+			actionOnMineClick(isRightClick,mine);
+		}
+	}
+	
+	public void actionOnBlankButtonClick
+		(boolean isRightClick, MineButton button){
+		if(startedPlaying&&!lostGame){
+			if(isRightClick){
+				if(!button.isClicked()){
+					changeFlagged(button);
+				}
+			}else if(!button.isFlagged()
+					&&!button.isClicked()){
+				toggleNearbySquares(button);
+				button.setClicked(true);
+				button.onClicked();
+			}
+		}else if(!startedPlaying&&!lostGame){
+			startGame();
+			actionOnBlankButtonClick(isRightClick,button);
+		}
+	}
+	
+	public void actionOnNumberButtonClick
+	(boolean isRightClick, MineButton button){
+		if(startedPlaying&&!lostGame){
+			if(isRightClick){
+				if(!button.isClicked()){
+					changeFlagged(button);
+				}
+			}else if(!button.isFlagged()){
+				button.onClicked();
+				button.setFlagged(true);
+				changeFlagged(button);
+			}
+		}else if(!startedPlaying&&!lostGame){
+			startGame();
+			actionOnNumberButtonClick(isRightClick,button);
+		}
+	}
+	
+	public void startGame(){
 		if(!startedPlaying){
+			System.out.println("set started playing to true");
 			startedPlaying = true;
 		}
 
@@ -196,73 +252,48 @@ public class MinesweeperPanel extends JPanel{
 						BlankSquareButton currentButton = 
 								new BlankSquareButton(new Point(i,j));
 						buttons[i][j] = currentButton;
-//						System.out.println("added blank square at location:"+currentButton.getLocation().toString());
-						currentButton.addActionListener(new ActionListener(){
-							@Override
-							public void actionPerformed(ActionEvent e) {
-								// TODO Auto-generated method stub
-								
-								/*currentButton.onClicked();
-								toggleNearbySquares(currentButton);*/
-							}
-						});
-						
-						currentButton.addMouseListener(new MouseAdapter(){
-							@Override
-							public void mousePressed(MouseEvent e){
-								if(startedPlaying&&!lostGame){
-									if(e.getButton() == MouseEvent.BUTTON3){
-										if(!currentButton.isClicked()){
-											changeFlagged(currentButton);
-										}
-									}else if(!currentButton.isFlagged()
-											&&!currentButton.isClicked()){
-										toggleNearbySquares(currentButton);
-										currentButton.setClicked(true);
-										currentButton.onClicked();
-									}
-								}else if(!startedPlaying&&!lostGame){
-									startGame();
-									mousePressed(e);
+						if(!isAIPanel){
+							currentButton.addMouseListener(new MouseAdapter(){
+								@Override
+								public void mousePressed(MouseEvent e){
+									switch(e.getButton()){
+									case(MouseEvent.BUTTON3):
+										actionOnBlankButtonClick(
+												true,currentButton);
+										break;
+									default:
+										actionOnBlankButtonClick(
+												false,currentButton);
+										break;
 								}
-							}
-						});
+								}
+							});
+						}
 						
 					}else{
 						NumberButton currentButton = 
 								new NumberButton(numSurroundingMines,
 								new Point(i,j));
-//						System.out.println("added number button at location:"+currentButton.getLocation().toString());
-						buttons[i][j] = currentButton;
-						currentButton.addActionListener(new ActionListener(){
-	
-							@Override
-							public void actionPerformed(ActionEvent e) {
-								// TODO Auto-generated method stub
-//								currentButton.onClicked();
-							}
-						});
 						
-						currentButton.addMouseListener(new MouseAdapter(){
-							@Override
-							public void mousePressed(MouseEvent e){
-								if(startedPlaying&&!lostGame){
-									if(e.getButton() == MouseEvent.BUTTON3){
-										if(!currentButton.isClicked()){
-											changeFlagged(currentButton);
-										}
-									}else if(!currentButton.isFlagged()){
-										currentButton.onClicked();
-										currentButton.setFlagged(true);
-										changeFlagged(currentButton);
+						buttons[i][j] = currentButton;
+						if(!isAIPanel){
+							currentButton.addMouseListener(new MouseAdapter(){
+								@Override
+								public void mousePressed(MouseEvent e){
+									switch(e.getButton()){
+									case(MouseEvent.BUTTON3):
+										actionOnNumberButtonClick(
+												true,currentButton);
+										break;
+									default:
+										actionOnNumberButtonClick(
+												false,currentButton);
+										break;
 									}
-								}else if(!startedPlaying&&!lostGame){
-									startGame();
-									mousePressed(e);
 								}
-							}
-								
-						});
+									
+							});
+						}
 						
 						
 					}
