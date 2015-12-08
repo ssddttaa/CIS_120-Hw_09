@@ -32,7 +32,7 @@ public class MinesweeperPanel extends JPanel{
 	private final int numMines;
 	private MineButton[][] buttons;
 	private final int boardSize[];
-	private boolean debugMode = true;
+	private boolean debugMode = false;
 	public Boolean startedPlaying = false; 
 	public Boolean lostGame = false;
 	
@@ -43,12 +43,9 @@ public class MinesweeperPanel extends JPanel{
 	
 	private LinkedList<Point> mineLocations;
 	
-	private boolean isAIPanel;
-	
  	public MinesweeperPanel
- 		(JLabel player, MinesweeperDifficulty diff, boolean isAIPanel){
+ 		(JLabel player, MinesweeperDifficulty diff){
 		super(new GridLayout(diff.getSize()[0],diff.getSize()[1]));
-		this.isAIPanel = isAIPanel;
 		this.boardSize = diff.getSize();
 		this.mineLocations = new LinkedList<Point>();
 		buttons = new MineButton[boardSize[0]][boardSize[1]];
@@ -73,20 +70,6 @@ public class MinesweeperPanel extends JPanel{
 				}
 				this.add(currentButton);
 			}
-		}
-		if(this.isAIPanel){
-			ScheduledExecutorService newExecutor = 
-					Executors.newSingleThreadScheduledExecutor();
-			newExecutor.scheduleWithFixedDelay(new Runnable(){
-
-				@Override
-				public void run() {
-					// TODO Auto-generated method stub
-					
-					
-				}
-				
-			}, 0, 1, TimeUnit.SECONDS);
 		}
 	}
 	
@@ -132,22 +115,20 @@ public class MinesweeperPanel extends JPanel{
 			Mine newMine = new Mine(new Point(randX,randY));
 			mineLocations.add(newMine.getLocation());
 			buttons[randX][randY] = newMine;
-			if(!isAIPanel){
-				newMine.addMouseListener(new MouseAdapter(){
-					@Override
-					public void mousePressed(MouseEvent e){
-						switch(e.getButton()){
-							case(MouseEvent.BUTTON3):
-								actionOnMineClick(true,newMine);
-								break;
-							default:
-								actionOnMineClick(false,newMine);
-								break;
-						}
+			newMine.addMouseListener(new MouseAdapter(){
+				@Override
+				public void mousePressed(MouseEvent e){
+					switch(e.getButton()){
+						case(MouseEvent.BUTTON3):
+							actionOnMineClick(true,newMine);
+							break;
+						default:
+							actionOnMineClick(false,newMine);
+							break;
 					}
-					
-				});
-			}
+				}
+				
+			});
 			
 		}
 	}
@@ -246,23 +227,21 @@ public class MinesweeperPanel extends JPanel{
 						BlankSquareButton currentButton = 
 								new BlankSquareButton(new Point(i,j));
 						buttons[i][j] = currentButton;
-						if(!isAIPanel){
-							currentButton.addMouseListener(new MouseAdapter(){
-								@Override
-								public void mousePressed(MouseEvent e){
-									switch(e.getButton()){
-									case(MouseEvent.BUTTON3):
-										actionOnBlankButtonClick(
-												true,currentButton);
-										break;
-									default:
-										actionOnBlankButtonClick(
-												false,currentButton);
-										break;
-								}
-								}
-							});
-						}
+						currentButton.addMouseListener(new MouseAdapter(){
+							@Override
+							public void mousePressed(MouseEvent e){
+								switch(e.getButton()){
+								case(MouseEvent.BUTTON3):
+									actionOnBlankButtonClick(
+											true,currentButton);
+									break;
+								default:
+									actionOnBlankButtonClick(
+											false,currentButton);
+									break;
+							}
+							}
+						});
 						
 					}else{
 						NumberButton currentButton = 
@@ -270,24 +249,22 @@ public class MinesweeperPanel extends JPanel{
 								new Point(i,j));
 						
 						buttons[i][j] = currentButton;
-						if(!isAIPanel){
-							currentButton.addMouseListener(new MouseAdapter(){
-								@Override
-								public void mousePressed(MouseEvent e){
-									switch(e.getButton()){
-									case(MouseEvent.BUTTON3):
-										actionOnNumberButtonClick(
-												true,currentButton);
-										break;
-									default:
-										actionOnNumberButtonClick(
-												false,currentButton);
-										break;
-									}
+						currentButton.addMouseListener(new MouseAdapter(){
+							@Override
+							public void mousePressed(MouseEvent e){
+								switch(e.getButton()){
+								case(MouseEvent.BUTTON3):
+									actionOnNumberButtonClick(
+											true,currentButton);
+									break;
+								default:
+									actionOnNumberButtonClick(
+											false,currentButton);
+									break;
 								}
-									
-							});
-						}
+							}
+								
+						});
 						
 						
 					}

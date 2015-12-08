@@ -11,14 +11,12 @@ import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 
 /**
@@ -31,7 +29,7 @@ public class Game implements Runnable {
 	private MinesweeperDifficulty mode = MinesweeperDifficulty.BEGINNER;
 	public void run() {
 		final JFrame startingFrame = new JFrame("TOP LEVEL FRAME");	
-		JPanel startScreen = new JPanel(new GridLayout(5,1));
+		JPanel startScreen = new JPanel(new GridLayout(4,1));
 		startingFrame.setLocation(300, 300);
 		final JButton singlePlayerMode = new JButton("Single Player");
 		
@@ -44,18 +42,6 @@ public class Game implements Runnable {
 			}
 		});
 		
-		final JButton againstComputer = new JButton("1 vs. Computer");
-		againstComputer.addActionListener(new ActionListener(){
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-				displayAIPane();
-				startingFrame.setVisible(false);
-			}
-			
-		});
-		
 		final JButton instructions = new JButton("Instructions");
 		instructions.addActionListener(new ActionListener(){
 
@@ -63,6 +49,36 @@ public class Game implements Runnable {
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
 				startingFrame.setVisible(false);
+				JFrame instructionsFrame = new JFrame();
+				JPanel instructionsPanel = new JPanel();
+				JTextArea instructions = new JTextArea(
+						"Welcome to Minesweeper, made by Sadat Shaik for "+
+						"the CIS 120 final project! In order to start the game "
+						+"simply click the main-menu button, and click single "+
+						"player to begin! To play the game, "+
+						"you must left click to reveal any of the squares, and "
+						+"right click in order to flag any of the squares. "+
+						"The goal of the game is to use the information given "+
+						"by the numbers (which let you know how many mines "+
+						"surround that square among the 8 squares surrounding "+
+						"it) to determine what squares are mines and what are "+
+						"not. Once you have found a mine, you can flag it by "+
+						"right-clicking it. Note that in order to win, you "+
+						"must successfully flag all of the mines. To win the "+
+						"game it is not sufficient to just click all squares "+
+						"that are not mines. Have fun!"
+						);
+				instructions.setLineWrap(true);
+				instructions.setWrapStyleWord(true);
+				instructions.setSize(300,300);
+				instructions.setEditable(false);
+				JButton mainMenu = mainMenuButton(instructionsFrame);
+				instructionsPanel.add(instructions);
+				instructionsFrame.add(instructionsPanel, BorderLayout.CENTER);
+				instructionsFrame.add(mainMenu, BorderLayout.SOUTH);
+				instructionsFrame.setLocation(300,300);
+				instructionsFrame.pack();
+				instructionsFrame.setVisible(true);
 			}
 			
 		});
@@ -104,17 +120,7 @@ public class Game implements Runnable {
 					}
 				});
 				
-				JButton mainMenuButton = new JButton("Main Menu");
-				mainMenuButton.addActionListener(new ActionListener() {
-					
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						// TODO Auto-generated method stub
-						settingsFrame.dispose();
-						startingFrame.setVisible(true);
-						
-					}
-				});
+				JButton mainMenuButton = mainMenuButton(settingsFrame);
 				
 				difficultyPanel.add(new JLabel("Difficulty:"));
 				difficultyPanel.add(easy);
@@ -146,18 +152,7 @@ public class Game implements Runnable {
 				for(Score a : allScores){
 					highScores.add(new JLabel(a.name + "    " + a.score));
 				}
-				
-				JButton mainMenuButton = new JButton("Main Menu");
-				mainMenuButton.addActionListener(new ActionListener() {
-					
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						// TODO Auto-generated method stub
-						highScoresFrame.dispose();
-						startingFrame.setVisible(true);
-						
-					}
-				});
+				JButton mainMenuButton = mainMenuButton(highScoresFrame);
 				highScoresFrame.add(highScores, BorderLayout.CENTER);
 				highScoresFrame.add(mainMenuButton, BorderLayout.SOUTH);
 				highScoresFrame.pack();
@@ -167,7 +162,6 @@ public class Game implements Runnable {
 		});
 		
 		startScreen.add(singlePlayerMode);
-		startScreen.add(againstComputer);
 		startScreen.add(instructions);
 		startScreen.add(settings);
 		startScreen.add(highScores);
@@ -181,82 +175,11 @@ public class Game implements Runnable {
 		this.startFrame = startingFrame;
 	}
 
-	private void displayAIPane() {
-		MinesweeperPanel aiMP =
-				new MinesweeperPanel(new JLabel("AI"),
-						    this.mode, true);
-		
-		MinesweeperPanel mp =
-				new MinesweeperPanel(new JLabel("Player 1"),
-						    this.mode, false);
-		
-		MinesweeperFrame aiFrame =
-				new MinesweeperFrame(aiMP,new Point(300,300), "AI Board");
-		
-		MinesweeperFrame msFrame 
-				= new MinesweeperFrame(mp, new Point(600,300), "User Board");
-
-		this.msFrame = msFrame;
-		this.aiFrame = aiFrame;
-		
-		this.aiFrame.setVisible(true);
-		this.msFrame.setVisible(true);
-
-		ScheduledExecutorService checkIfGameStarted
-			= Executors.newSingleThreadScheduledExecutor();
-		
-		checkIfGameStarted.scheduleWithFixedDelay(new Runnable() {
-			
-			@Override
-			public void run() {
-				// TODO Auto-generated method stub
-				if(mp.isStartedPlaying()){
-					aiMP.startGame();
-					checkIfGameStarted.shutdown();
-				}
-				
-			}
-		}, 0, 1, TimeUnit.SECONDS);
-		
-		
-		
-		JButton resetButtonAI = this.aiFrame.getResetButton();
-		JButton resetButtonMS = this.msFrame.getResetButton();
-		ActionListener resetAIFrame = (new ActionListener(){
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-				aiFrame.dispose();
-				msFrame.dispose();
-				displayAIPane();
-			}
-		});
-		resetButtonAI.addActionListener(resetAIFrame);
-		resetButtonMS.addActionListener(resetAIFrame);
-		
-		JButton mainMenuButtonMS = msFrame.getMainMenuButton();
-		JButton mainMenuButtonAI = aiFrame.getMainMenuButton();
-		
-		ActionListener mainMenuListener = (new ActionListener(){
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-				aiFrame.dispose();
-				msFrame.dispose();
-				startFrame.setVisible(true);
-			}
-			
-		});
-		
-		mainMenuButtonMS.addActionListener(mainMenuListener);
-		mainMenuButtonAI.addActionListener(mainMenuListener);
-		
-	}
 	
 	public void displaySinglePlayer(){
 		MinesweeperPanel mp =
 				new MinesweeperPanel(new JLabel("Player 1"),
-						    this.mode, false);
+						    this.mode);
 		MinesweeperFrame mf
 		= new MinesweeperFrame(mp, new Point(300,300), "User Board");
 		JButton resetButton = mf.getResetButton();
@@ -265,19 +188,13 @@ public class Game implements Runnable {
 		
 		this.msFrame = mf;
 		
-		this.aiFrame = null;
 		
 		resetButton.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
 				msFrame.dispose();
-				if(aiFrame!=null){
-					aiFrame.dispose();
-					displayAIPane();
-				}else{
-					displaySinglePlayer();
-				}
+				displaySinglePlayer();
 				
 			}
 		});
@@ -286,10 +203,6 @@ public class Game implements Runnable {
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
 				msFrame.dispose();
-				if(aiFrame!=null){
-					aiFrame.dispose();
-					aiFrame = null;
-				}
 				startFrame.setVisible(true);
 			}
 			
@@ -297,6 +210,19 @@ public class Game implements Runnable {
 		mf.setVisible(true);
 	}
 	
+	public JButton mainMenuButton(JFrame frameToDispose){
+		JButton mainMenuButton = new JButton("Main Menu");
+		mainMenuButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				frameToDispose.dispose();
+				startFrame.setVisible(true);
+			}
+		});
+		return mainMenuButton;
+	}
 	/*
 	 * Main method run to start and run the game Initializes the GUI elements
 	 * specified in Game and runs it IMPORTANT: Do NOT delete! You MUST include

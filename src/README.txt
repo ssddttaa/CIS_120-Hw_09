@@ -1,6 +1,6 @@
 =:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=
 CIS 120 Game Project README
-PennKey: _______
+PennKey: sshaik
 =:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=
 
 ===================
@@ -8,12 +8,26 @@ PennKey: _______
 ===================
 
 - List the four core concepts, the features they implement, and why each feature
-  is an approprate use of the concept. You may copy and paste from your proposal
-  document if you did not change the features you are implementing.
+ is an appropriate use of the concept. You may copy and paste from your proposal
+ document if you did not change the features you are implementing.
 
-  1.
+  1.2D Array
+
+    - What specific feature of your game will be implemented using this concept?
+
+      The function of this 2D array will be creating a 2D array that will store
+      all of the mines. 
+
+    - Why does it make sense to implement this feature with this concept? 
+      Justify why this is a non-trivial application of the concept in question.
+
+      This is the most optimal data structure because the game is in the form of
+      a grid, and I will constantly need to access a certain mine at a certain 
+      location, therefore the constant time access of an array will allow for
+      this to be done efficiently in comparison to all other data structures.
 
   2.
+  
 
   3.
 
