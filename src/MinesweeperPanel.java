@@ -1,27 +1,23 @@
-import java.awt.AWTException;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Point;
-import java.awt.Robot;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Random;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -36,7 +32,7 @@ public class MinesweeperPanel extends JPanel{
 	private final int numMines;
 	private MineButton[][] buttons;
 	private final int boardSize[];
-	private boolean debugMode = false;
+	private boolean debugMode = true;
 	public Boolean startedPlaying = false; 
 	public Boolean lostGame = false;
 	
@@ -79,7 +75,6 @@ public class MinesweeperPanel extends JPanel{
 			}
 		}
 		if(this.isAIPanel){
-			System.out.println("is AI panel");
 			ScheduledExecutorService newExecutor = 
 					Executors.newSingleThreadScheduledExecutor();
 			newExecutor.scheduleWithFixedDelay(new Runnable(){
@@ -215,7 +210,6 @@ public class MinesweeperPanel extends JPanel{
 	
 	public void startGame(){
 		if(!startedPlaying){
-			System.out.println("set started playing to true");
 			startedPlaying = true;
 		}
 
@@ -340,7 +334,34 @@ public class MinesweeperPanel extends JPanel{
 				e1.printStackTrace();
 			}
 			if(checkGameSolved()){
-				JOptionPane.showMessageDialog(this, "Congratulations you won!", "Congratulations!", JOptionPane.PLAIN_MESSAGE);;
+				JOptionPane.showMessageDialog(this, 
+						"Congratulations you won!", 
+						"Congratulations!", 
+						JOptionPane.PLAIN_MESSAGE);
+				
+				HighScores checkScores = new HighScores();
+				if(checkScores.isNewHighScore(timeSinceGameStarted)){
+					String s = (String)JOptionPane.showInputDialog("hello");
+					while(!HighScores.isValidInput(s)){
+						s = (String)JOptionPane.showInputDialog(
+								"Please input a valid name");
+					}
+					if(!checkScores.addToHighScores(
+							new Score(s,timeSinceGameStarted))){
+						JOptionPane.showMessageDialog(this, 
+								"Congratulations you won!", 
+								"Congratulations!", 
+								JOptionPane.PLAIN_MESSAGE);
+						
+					}
+					
+				}else{
+					JOptionPane.showMessageDialog(this, 
+							"Great effort, however you did not make the "
+									+ "high score list. Better luck next time",
+							"We're sorry",
+							JOptionPane.PLAIN_MESSAGE);
+				}
 				clickedMine();
 			}
 		}else{
@@ -349,18 +370,47 @@ public class MinesweeperPanel extends JPanel{
 		}
 	}
 	
+	public void addToHighScore(){
+		
+		JOptionPane.showMessageDialog(this, 
+				"Congratulations you won!", 
+				"Congratulations!", 
+				JOptionPane.PLAIN_MESSAGE);
+		
+		HighScores checkScores = new HighScores();
+		if(checkScores.isNewHighScore(timeSinceGameStarted)){
+			String s = (String)JOptionPane.showInputDialog("hello");
+			while(!HighScores.isValidInput(s)){
+				s = (String)JOptionPane.showInputDialog(
+						"Please input a valid name for the scoreboard."
+						+ "A valid name is one that does not have any spaces"
+						+ "or numeric characters");
+			}
+			if(!checkScores.addToHighScores(
+					new Score(s,timeSinceGameStarted))){
+				JOptionPane.showMessageDialog(this, 
+						"Congratulations you won!", 
+						"Congratulations!", 
+						JOptionPane.PLAIN_MESSAGE);
+			}
+			
+		}else{
+			JOptionPane.showMessageDialog(this, 
+					"Great effort, however you did not make the "
+							+ "high score list. Better luck next time",
+					"We're sorry",
+					JOptionPane.PLAIN_MESSAGE);
+		}
+	}
+	
 	private boolean checkGameSolved(){
 		boolean isSolved = false;
-		System.out.println("checking game");
 		for(Point mine : mineLocations){
 			int x = mine.x;
 			int y = mine.y;
-			System.out.println("mine location:"+mine.toString());
 			if(buttons[x][y].isFlagged()){
 				isSolved = true;
 			}else{
-				System.out.println("failed at:"+
-						buttons[y][x].getLocation().toString());
 				isSolved = false;
 				break;
 			}
@@ -373,8 +423,6 @@ public class MinesweeperPanel extends JPanel{
 						if(mineLocations.contains(currentButton.getLocation())){
 							isSolved = true;
 						}else{
-							System.out.println("failed at:"+
-									currentButton.getLocation().toString());
 							isSolved = false;
 							break;
 						}
@@ -394,7 +442,6 @@ public class MinesweeperPanel extends JPanel{
 			
 			if(currentNeighbor instanceof BlankSquareButton){
 				if(!currentNeighbor.isClicked()){
-//					System.out.println("calling function with blank at this location:" + currentNeighbor.getLocation().toString());
 					currentNeighbor.setClicked(true);
 					toggleNearbySquares(currentNeighbor);
 					currentNeighbor.onClicked();

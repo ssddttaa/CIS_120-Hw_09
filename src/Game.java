@@ -5,10 +5,12 @@
  */
 
 // imports necessary libraries for Java swing
+import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -29,7 +31,7 @@ public class Game implements Runnable {
 	private MinesweeperDifficulty mode = MinesweeperDifficulty.BEGINNER;
 	public void run() {
 		final JFrame startingFrame = new JFrame("TOP LEVEL FRAME");	
-		JPanel startScreen = new JPanel(new GridLayout(4,1));
+		JPanel startScreen = new JPanel(new GridLayout(5,1));
 		startingFrame.setLocation(300, 300);
 		final JButton singlePlayerMode = new JButton("Single Player");
 		
@@ -60,7 +62,7 @@ public class Game implements Runnable {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
-				
+				startingFrame.setVisible(false);
 			}
 			
 		});
@@ -71,15 +73,104 @@ public class Game implements Runnable {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
+				startingFrame.setVisible(false);
+				JFrame settingsFrame = new JFrame();
+				JPanel difficultyPanel = new JPanel(new GridLayout(1,4));
+				JButton easy = new JButton("Beginner");
+				easy.addActionListener(new ActionListener() {
+					
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						// TODO Auto-generated method stub
+						mode = MinesweeperDifficulty.BEGINNER;
+					}
+				});
+				JButton intermediate = new JButton("Intermediate");
+				intermediate.addActionListener(new ActionListener() {
+					
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						// TODO Auto-generated method stub
+						mode = MinesweeperDifficulty.INTERMEDIATE;
+					}
+				});
+				JButton expert = new JButton("Expert");
+				expert.addActionListener(new ActionListener() {
+					
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						// TODO Auto-generated method stub
+						mode = MinesweeperDifficulty.EXPERT;
+					}
+				});
+				
+				JButton mainMenuButton = new JButton("Main Menu");
+				mainMenuButton.addActionListener(new ActionListener() {
+					
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						// TODO Auto-generated method stub
+						settingsFrame.dispose();
+						startingFrame.setVisible(true);
+						
+					}
+				});
+				
+				difficultyPanel.add(new JLabel("Difficulty:"));
+				difficultyPanel.add(easy);
+				difficultyPanel.add(intermediate);
+				difficultyPanel.add(expert);
+				settingsFrame.add(difficultyPanel, BorderLayout.NORTH);
+				settingsFrame.add(mainMenuButton, BorderLayout.SOUTH);
+				settingsFrame.setLocation(300, 300);
+				settingsFrame.pack();
+				settingsFrame.setVisible(true);
+				
+				
 				
 			}
 			
+		});
+		
+		final JButton highScores = new JButton("High Scores");
+		highScores.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				startingFrame.setVisible(false);
+				JFrame highScoresFrame = new JFrame();
+				JPanel highScores = new JPanel(new GridLayout(10,1));
+				HighScores scores = new HighScores();
+				ArrayList<Score> allScores = scores.getScores();
+				for(Score a : allScores){
+					highScores.add(new JLabel(a.name + "    " + a.score));
+				}
+				
+				JButton mainMenuButton = new JButton("Main Menu");
+				mainMenuButton.addActionListener(new ActionListener() {
+					
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						// TODO Auto-generated method stub
+						highScoresFrame.dispose();
+						startingFrame.setVisible(true);
+						
+					}
+				});
+				highScoresFrame.add(highScores, BorderLayout.CENTER);
+				highScoresFrame.add(mainMenuButton, BorderLayout.SOUTH);
+				highScoresFrame.pack();
+				highScoresFrame.setLocation(600, 400);
+				highScoresFrame.setVisible(true);
+			}
 		});
 		
 		startScreen.add(singlePlayerMode);
 		startScreen.add(againstComputer);
 		startScreen.add(instructions);
 		startScreen.add(settings);
+		startScreen.add(highScores);
 		
 		startingFrame.add(startScreen);
 		startingFrame.setResizable(false);
@@ -143,8 +234,10 @@ public class Game implements Runnable {
 		resetButtonAI.addActionListener(resetAIFrame);
 		resetButtonMS.addActionListener(resetAIFrame);
 		
-		JButton mainMenuButton = msFrame.getMainMenuButton();
-		mainMenuButton.addActionListener(new ActionListener(){
+		JButton mainMenuButtonMS = msFrame.getMainMenuButton();
+		JButton mainMenuButtonAI = aiFrame.getMainMenuButton();
+		
+		ActionListener mainMenuListener = (new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
@@ -154,6 +247,10 @@ public class Game implements Runnable {
 			}
 			
 		});
+		
+		mainMenuButtonMS.addActionListener(mainMenuListener);
+		mainMenuButtonAI.addActionListener(mainMenuListener);
+		
 	}
 	
 	public void displaySinglePlayer(){
@@ -167,6 +264,9 @@ public class Game implements Runnable {
 		mf.setVisible(true);
 		
 		this.msFrame = mf;
+		
+		this.aiFrame = null;
+		
 		resetButton.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -174,9 +274,9 @@ public class Game implements Runnable {
 				msFrame.dispose();
 				if(aiFrame!=null){
 					aiFrame.dispose();
-					displaySinglePlayer();
-				}else{
 					displayAIPane();
+				}else{
+					displaySinglePlayer();
 				}
 				
 			}
@@ -188,6 +288,7 @@ public class Game implements Runnable {
 				msFrame.dispose();
 				if(aiFrame!=null){
 					aiFrame.dispose();
+					aiFrame = null;
 				}
 				startFrame.setVisible(true);
 			}
