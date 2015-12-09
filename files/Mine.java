@@ -1,8 +1,9 @@
-package MineButton;
+
 
 import java.awt.Point;
 
 @SuppressWarnings("serial")
+//Button that represents a mine
 public class Mine extends MineButton{
 
 	public Mine(Point location){
@@ -10,8 +11,6 @@ public class Mine extends MineButton{
 	}
 	@Override
 	public void onClicked() {
-		// TODO Auto-generated method stub
-//		changeToClickedAppearance();
 		setClicked(true);
 	}
 

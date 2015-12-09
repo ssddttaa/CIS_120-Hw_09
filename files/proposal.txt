@@ -1,0 +1,72 @@
+=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=
+CIS 120 Game Project Proposal
+PennKey: _______
+=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=
+
+===============
+=: Your Game :=
+===============
+
+- What game are you planning to implement? If it is a game of your own design,
+  or not especially well-known, provide a 2-3 sentence description of the game.
+
+
+- What classes and interfaces do you plan to create? How will the different
+  components of your game (the model, the GUI, etc.) interact?
+
+
+- What do you think will be the most challenging thing to implement?
+
+
+====================
+=: Core Concept 1 :=
+====================
+
+Concept 1: ___(fill in the blank)____
+
+- What specific feature of your game will be implemented using this concept?
+
+
+- Why does it make sense to implement this feature with this concept? Justify
+  why this is a non-trivial application of the concept in question.
+
+
+====================
+=: Core Concept 2 :=
+====================
+
+Concept 2: ___(fill in the blank)____
+
+- What specific feature of your game will be implemented using this concept?
+
+
+- Why does it make sense to implement this feature with this concept? Justify
+  why this is a non-trivial application of the concept in question.
+
+
+====================
+=: Core Concept 3 :=
+====================
+
+Concept 3: ___(fill in the blank)____
+
+- What specific feature of your game will be implemented using this concept?
+
+
+- Why does it make sense to implement this feature with this concept? Justify
+  why this is a non-trivial application of the concept in question.
+
+
+====================
+=: Core Concept 4 :=
+====================
+
+Concept 4: ___(fill in the blank)____
+
+- What specific feature of your game will be implemented using this concept?
+
+
+- Why does it make sense to implement this feature with this concept? Justify
+  why this is a non-trivial application of the concept in question.
+
+
